@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "684979271841",
+    "firebase_url": "https://desv-teste.firebaseio.com",
+    "project_id": "desv-teste",
+    "storage_bucket": "desv-teste.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:684979271841:android:f5b8d961657c10d5",
+        "android_client_info": {
+          "package_name": "com.edidevteste.whatsappjava"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "684979271841-afsi97hf1nep6avkmm3k7i0tvsp4hp7p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edidevteste.whatsappjava",
+            "certificate_hash": "bdb9610093897838fab62fc7c65decbfd0202036"
+          }
+        },
+        {
+          "client_id": "684979271841-9s163plehri6p7o3u2c9eis04haa0anv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBprN1S8NhWatec89Qjp-LMnoyZMXznq3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "684979271841-9s163plehri6p7o3u2c9eis04haa0anv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
