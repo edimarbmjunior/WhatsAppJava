@@ -2,6 +2,7 @@ package com.edidevteste.whatsappjava.view;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -30,6 +31,10 @@ public class LoginActivity extends AppCompatActivity {
     private EditText telDdd;
     private EditText telefone;
     private ImageButton buttonCadstrar;
+
+    //Salvar dados na SharedPreference
+    PreferenceSecurity sharedPreference;
+
     private String[] permissoesNecessarias = new String[]{
             Manifest.permission.SEND_SMS,
             Manifest.permission.READ_SMS,
@@ -42,9 +47,28 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        validaExistenciaUsuario();
+
         //RequestCode - Para verificar se a sua activity tem permissão, cada activity de seu request
         Permissao.validaPermissoes(requestCode, this, permissoesNecessarias);
 
+        montaMascara();
+        setListeners();
+    }
+
+    private void setListeners(){
+        buttonCadstrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(fazCritica()){
+                    String[] valorDigitado = valoreString();
+                    validaUsuario(valorDigitado);
+                }
+            }
+        });
+    }
+
+    private void montaMascara(){
         nome = findViewById(R.id.editNomeCadastro);
         telDdi = findViewById(R.id.editDDITelefoneCadastro);
         telDdd = findViewById(R.id.editDDDTelefoneCadastro);
@@ -65,20 +89,15 @@ public class LoginActivity extends AppCompatActivity {
         maskTextWatcher = new MaskTextWatcher(telefone, simpleMaskFormatter);
 
         telefone.addTextChangedListener(maskTextWatcher);
-
-        setListeners();
     }
 
-    private void setListeners(){
-        buttonCadstrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(fazCritica()){
-                    String[] valorDigitado = valoreString();
-                    validaUsuario(valorDigitado);
-                }
-            }
-        });
+    private void validaExistenciaUsuario(){
+        sharedPreference = new PreferenceSecurity(getApplicationContext());
+
+        if(sharedPreference.recuperarValorUnicoPrefences(UtilConstantes.USUARIO_DADOS.getColuna4()) == "S"){
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
     }
 
     private String[] valoreString(){
@@ -137,18 +156,27 @@ public class LoginActivity extends AppCompatActivity {
         Log.i("Token", "T: >" + token);
 
         //Salvar dados na SharedPreference
-        PreferenceSecurity sharedPreference = new PreferenceSecurity(getApplicationContext());
-        sharedPreference.salvarValorPreferences(UtilConstantes.SECURITY_PREFERENCES.getColuna1(),token );
-        sharedPreference.salvarValorPreferences(UtilConstantes.SECURITY_PREFERENCES.getColuna2(), valorDigitado[0] );
-        sharedPreference.salvarValorPreferences(UtilConstantes.SECURITY_PREFERENCES.getColuna3(),valorDigitado[1] );
+        sharedPreference = new PreferenceSecurity(getApplicationContext());
+        sharedPreference.salvarValorPreferences(UtilConstantes.USUARIO_DADOS.getColuna1(), token );
+        sharedPreference.salvarValorPreferences(UtilConstantes.USUARIO_DADOS.getColuna2(), valorDigitado[0] );
+        sharedPreference.salvarValorPreferences(UtilConstantes.USUARIO_DADOS.getColuna3(), valorDigitado[1] );
 
-        //Enviar SMS
+        //TODO Mock para numero do celular no emulator do celular
         String numeroMockEmulador = String.valueOf(5554);
         valorDigitado[1] = numeroMockEmulador;
+
+        //Enviar SMS
         Log.i("Telefone", "Numero:" + numeroMockEmulador);
         boolean statusSms = enviaSMS("+" + valorDigitado[1], mensagem);
 
         Log.i("SMS", "SMS:" + statusSms);
+
+        if(statusSms){
+            startActivity(new Intent(LoginActivity.this, ValidadorActivity.class));
+            finish();
+        }else{
+            Toast.makeText(this, "Problema ao enviar o SMS, tente novamente!", Toast.LENGTH_LONG).show();
+        }
     }
 
     private boolean enviaSMS(String telefone, String mensagem){
@@ -160,7 +188,7 @@ public class LoginActivity extends AppCompatActivity {
             statusEnvio = true;
 
         }catch (Exception e){
-            Log.e("Error", "Error: >" + e);
+            Log.e("Error(enviaSMS)", "Error: >" + e);
             e.printStackTrace();
             statusEnvio = false;
         }finally {

@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 
 import com.edidevteste.whatsappjava.Util.UtilConstantes;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class PreferenceSecurity {
@@ -39,7 +39,7 @@ public class PreferenceSecurity {
         return mSharedPreferences.getString(key, "");
     }
 
-    public HashMap<String, String> recuperarValoresUnicoPrefences(ArrayList<String> keys){
+    public HashMap<String, String> recuperarValoresUnicoPrefences(List<String> keys){
         HashMap<String, String> retorno = new HashMap();
 
         for (String key : keys){
