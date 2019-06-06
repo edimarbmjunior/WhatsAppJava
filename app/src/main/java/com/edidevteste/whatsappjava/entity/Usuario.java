@@ -1,5 +1,8 @@
 package com.edidevteste.whatsappjava.entity;
 
+import com.edidevteste.whatsappjava.Util.UtilGenerico;
+import com.google.firebase.database.Exclude;
+
 public class Usuario {
 
     private String id;
@@ -18,6 +21,7 @@ public class Usuario {
         this.senha = senha;
     }
 
+    @Exclude
     public String getId() {
         return id;
     }
@@ -34,6 +38,7 @@ public class Usuario {
         this.nome = nome;
     }
 
+    @Exclude
     public String getEmail() {
         return email;
     }
@@ -47,6 +52,7 @@ public class Usuario {
     }
 
     public void setSenha(String senha) {
+        senha = UtilGenerico.MD5_Hash(senha);
         this.senha = senha;
     }
 }

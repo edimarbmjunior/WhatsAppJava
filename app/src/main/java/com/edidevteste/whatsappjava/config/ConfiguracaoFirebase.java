@@ -11,7 +11,7 @@ public final class ConfiguracaoFirebase {
 
     private ConfiguracaoFirebase(){}
 
-    public static DatabaseReference getFirebase(){
+    public static DatabaseReference getFirebaseDataBase(){
         if(mReferenceFirebase==null){
             mReferenceFirebase = FirebaseDatabase.getInstance().getReference();
         }
