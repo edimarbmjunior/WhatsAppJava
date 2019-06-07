@@ -43,7 +43,10 @@ public class PreferenceSecurity {
         HashMap<String, String> retorno = new HashMap();
 
         for (String key : keys){
-            retorno.put(key, mSharedPreferences.getString(key, ""));
+            String valor = mSharedPreferences.getString(key, "");
+            if(valor.length()>1){
+                retorno.put(key, valor);
+            }
         }
         return retorno;
     }
@@ -54,5 +57,15 @@ public class PreferenceSecurity {
         retorno.put(UtilConstantes.USUARIO_DADOS.getColuna2(), mSharedPreferences.getString(UtilConstantes.USUARIO_DADOS.getColuna2(), ""));
         retorno.put(UtilConstantes.USUARIO_DADOS.getColuna3(), mSharedPreferences.getString(UtilConstantes.USUARIO_DADOS.getColuna3(), ""));
         return retorno;
+    }
+
+    public void removerValorPreferencesUsuario(String key){
+        editor.remove(key);
+    }
+
+    public void removerValoresPreferencesUsuario(List<String> keys){
+        for (String key : keys){
+            editor.remove(key);
+        }
     }
 }

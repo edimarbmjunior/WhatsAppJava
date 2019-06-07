@@ -1,6 +1,7 @@
 package com.edidevteste.whatsappjava.Util;
 
 import android.content.Context;
+import android.util.Patterns;
 import android.widget.Toast;
 
 import java.math.BigInteger;
@@ -27,5 +28,9 @@ public class UtilGenerico {
         } finally{
             return retornoString;
         }
+    }
+
+    public static Boolean isValidEmail(String email){
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 }

@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">JavaWhatsApp</string>
-    <string name="erro_processar_dados">Error ao processar dados.</string>
-    <string name="usuario_cadastrado">Usu�rio cadastrado!</string>
-    <string name="erro_salvar_dados">Error ao salvar os dados.</string>
+    <string name="erro_processar_dados">Error ao processar dados. </string>
+    <string name="usuario_cadastrado">Usuário cadastrado! </string>
+    <string name="erro_salvar_dados">Error ao salvar os dados. </string>
+    <string name="dados_invalidos">Dados inválidos! </string>
+    <string name="finalizando_cadastro">Finalizando o cadastro.</string>
 </resources>

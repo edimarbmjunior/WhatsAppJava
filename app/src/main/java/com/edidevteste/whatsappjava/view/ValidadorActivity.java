@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.edidevteste.whatsapp.R;
+import com.edidevteste.javawhatsapp.R;
 import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
 import com.edidevteste.whatsappjava.Util.UtilConstantes;
 import com.github.rtoshiro.util.format.SimpleMaskFormatter;

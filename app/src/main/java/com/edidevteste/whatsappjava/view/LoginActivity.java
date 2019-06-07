@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.edidevteste.whatsapp.R;
+import com.edidevteste.javawhatsapp.R;
 import com.edidevteste.whatsappjava.Security.Permissao;
 import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
 import com.edidevteste.whatsappjava.Util.UtilConstantes;
