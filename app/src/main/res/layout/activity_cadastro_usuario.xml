@@ -85,6 +85,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         android:minWidth="150dp"
+        android:theme="@style/botaologin"
         android:text="Cadastrar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

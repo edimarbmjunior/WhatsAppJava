@@ -61,11 +61,13 @@ public class PreferenceSecurity {
 
     public void removerValorPreferencesUsuario(String key){
         editor.remove(key);
+        editor.commit();
     }
 
     public void removerValoresPreferencesUsuario(List<String> keys){
         for (String key : keys){
             editor.remove(key);
+            editor.commit();
         }
     }
 }

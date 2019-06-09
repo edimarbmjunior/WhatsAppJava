@@ -5,4 +5,9 @@
     <string name="erro_salvar_dados">Error ao salvar os dados. </string>
     <string name="dados_invalidos">Dados inválidos! </string>
     <string name="finalizando_cadastro">Finalizando o cadastro.</string>
+    <string name="item_configuracoes">Configurações</string>
+    <string name="item_sair">Sair</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

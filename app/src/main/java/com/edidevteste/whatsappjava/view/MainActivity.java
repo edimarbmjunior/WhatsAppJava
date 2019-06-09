@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         Timer timer = new Timer();
         MainActivity.Task task = new MainActivity.Task();
 
-        timer.schedule(task, 1000, 1000);
+        timer.schedule(task, 500, 500);
     }
 
     private void logar(){

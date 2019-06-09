@@ -91,6 +91,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         android:background="@color/colorPrimary"
+        android:theme="@style/botaologin"
         android:minWidth="100dp"
         android:src="@drawable/ic_check_salvar"
         app:layout_constraintBottom_toBottomOf="parent"
