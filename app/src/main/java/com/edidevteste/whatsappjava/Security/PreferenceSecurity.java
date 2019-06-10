@@ -51,6 +51,14 @@ public class PreferenceSecurity {
         return retorno;
     }
 
+    public String recuperarUsuarioEmail64(){
+        return mSharedPreferences.getString(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4(), "");
+    }
+
+    public String recuperarUsuarioEmail(){
+        return mSharedPreferences.getString(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), "");
+    }
+
     public HashMap<String, String> salvarValoresPreferencesUsuario(){
         HashMap<String, String> retorno = new HashMap();
         retorno.put(UtilConstantes.USUARIO_DADOS.getColuna1(), mSharedPreferences.getString(UtilConstantes.USUARIO_DADOS.getColuna1(), ""));

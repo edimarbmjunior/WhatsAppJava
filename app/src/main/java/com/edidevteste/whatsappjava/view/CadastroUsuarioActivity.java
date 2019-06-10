@@ -1,5 +1,6 @@
 package com.edidevteste.whatsappjava.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,9 @@ import android.widget.EditText;
 import com.edidevteste.javawhatsapp.R;
 import com.edidevteste.whatsappjava.Business.UsuarioBusiness;
 import com.edidevteste.whatsappjava.Repository.UsuarioRepository;
+import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
+import com.edidevteste.whatsappjava.Util.Base64Custom;
+import com.edidevteste.whatsappjava.Util.UtilConstantes;
 import com.edidevteste.whatsappjava.Util.UtilGenerico;
 import com.edidevteste.whatsappjava.config.ConfiguracaoFirebase;
 import com.edidevteste.whatsappjava.entity.Usuario;
@@ -21,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,7 +38,9 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
     private Usuario usuario;
 
     private FirebaseAuth mFirebaseAuth;
-    UsuarioBusiness mUsuarioBusiness = new UsuarioBusiness();
+    private UsuarioBusiness mUsuarioBusiness = new UsuarioBusiness();
+    private PreferenceSecurity mPreferenceSecurity;
+
     private Integer processarSalvamento = 0;
     private Usuario usuarioSalvar;
 
@@ -53,6 +60,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
         editTextSenha = findViewById(R.id.editCadastroSenha);
         buttonSalvar = findViewById(R.id.buttonCadastro);
         mFirebaseAuth = ConfiguracaoFirebase.getFirebaseAuth();
+        mPreferenceSecurity = new PreferenceSecurity(this);
 
         setListeners();
         Timer();
@@ -95,6 +103,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
                                 if(task.isSuccessful()){
                                     usuario.setId(task.getResult().getUser().getUid());
                                     if(usuario.getId()!=null && usuario.getId().length()>0){
+                                        usuarioSalvar = new Usuario();
                                         usuarioSalvar = usuario;
                                         usuario = new Usuario();
                                         processarSalvamento = 1;
@@ -142,6 +151,25 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
 
     }
 
+    private void salvarFirebaAuth(){
+        try{
+            String codificadoEmail = Base64Custom.CodificaTo64(usuarioSalvar.getEmail());
+            HashMap dadosUsuario = new HashMap();
+            dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1(), usuarioSalvar.getId());
+            dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), usuarioSalvar.getEmail());
+            dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3(), usuarioSalvar.getSenha());
+            dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4(), codificadoEmail);
+            mPreferenceSecurity.salvarValoresPreferences(dadosUsuario);
+            usuarioSalvar.setId(codificadoEmail);
+            new UsuarioRepository().salvarUsuario(usuarioSalvar);
+            UtilGenerico.msgGenerrica(CadastroUsuarioActivity.this, getString(R.string.usuario_cadastrado) /*+  "Identificador. " + usuarioSalvar.getId()*/);
+            Log.i("Error(buttonSalvar)", getString(R.string.finalizando_cadastro));
+        }catch (Exception e){
+            Log.e("Error(buttonSalvar)", "Error: >" + e);
+            UtilGenerico.msgGenerrica(CadastroUsuarioActivity.this, getString(R.string.erro_salvar_dados));
+        }
+    }
+
     public void Timer(){
         Timer timer = new Timer();
         Task task = new Task();
@@ -156,17 +184,17 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(processarSalvamento == 1){
-                        processarSalvamento = 0;
-                        try{
-                            new UsuarioRepository().salvarUsuario(usuarioSalvar);
-                            mFirebaseAuth.signOut();
-                            UtilGenerico.msgGenerrica(CadastroUsuarioActivity.this, getString(R.string.usuario_cadastrado) /*+  "Identificador. " + usuarioSalvar.getId()*/);
-                            Log.i("Error(buttonSalvar)", getString(R.string.finalizando_cadastro));
-                            finish();
-                        }catch (Exception e){
-                            Log.e("Error(buttonSalvar)", "Error: >" + e);
-                            UtilGenerico.msgGenerrica(CadastroUsuarioActivity.this, getString(R.string.erro_salvar_dados));
+                    if(processarSalvamento > 0){
+                        switch (processarSalvamento){
+                            case 1:
+                                processarSalvamento = 0;
+                                salvarFirebaAuth();
+                                startActivity(new Intent(CadastroUsuarioActivity.this, MainActivity.class));
+                                finish();
+                                break;
+                            default:
+                                processarSalvamento = 0;
+                                break;
                         }
                     }
                 }

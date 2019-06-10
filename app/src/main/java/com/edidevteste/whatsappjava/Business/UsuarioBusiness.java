@@ -2,7 +2,9 @@ package com.edidevteste.whatsappjava.Business;
 
 import com.edidevteste.whatsappjava.Repository.UsuarioRepository;
 import com.edidevteste.whatsappjava.Util.UtilGenerico;
+import com.edidevteste.whatsappjava.entity.Contato;
 import com.edidevteste.whatsappjava.entity.Usuario;
+import com.google.firebase.database.DatabaseReference;
 
 public class UsuarioBusiness {
 
@@ -27,5 +29,13 @@ public class UsuarioBusiness {
             return false;
         }*/
         return retorno;
+    }
+
+    public DatabaseReference getRecuperaInstanciaUsuario(String identificadorEmailBase64){
+        return new UsuarioRepository().getRecuperaInstanciaUsuario(identificadorEmailBase64);
+    }
+
+    public void salvarContato(String usuarioLogado, String usuarioContato, Contato contato){
+        new UsuarioRepository().salvarContato(usuarioLogado, usuarioContato, contato);
     }
 }

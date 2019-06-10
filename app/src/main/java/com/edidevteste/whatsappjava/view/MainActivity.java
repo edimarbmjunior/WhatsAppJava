@@ -12,6 +12,7 @@ import android.widget.Switch;
 
 import com.edidevteste.javawhatsapp.R;
 import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
+import com.edidevteste.whatsappjava.Util.Base64Custom;
 import com.edidevteste.whatsappjava.Util.UtilConstantes;
 import com.edidevteste.whatsappjava.Util.UtilGenerico;
 import com.edidevteste.whatsappjava.config.ConfiguracaoFirebase;
@@ -67,16 +68,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void validaUsuarioLogado(){
-        if(mAutenticacaoFirebaseAuth.getCurrentUser()!=null){
+        if(mAutenticacaoFirebaseAuth.getCurrentUser()!=null && mPreferenceSecurity.recuperarValorUnicoPrefences(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4())!=null){
             chamarTelaPrincipal();
         }else{
             List<String> dadosUsuario = new ArrayList<>();
-            dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1());
+            dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4());
             dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2());
             dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3());
             HashMap<String, String> dadosRecuperados = mPreferenceSecurity.recuperarValoresUnicoPrefences(dadosUsuario);
             if(!dadosRecuperados.isEmpty()){
-                usuario = new Usuario(dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1()), null, dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2()), dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3()));
+                usuario = new Usuario(dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4()), null, dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2()), dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3()));
                 timerProcessamento = 3;
             }
         }
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                             erroSign = "Erro na comunicação com servidor, caso repita entre em contato!";
                         }
                         Log.e("Error(logar)", "Error: > " + erroSign);
-                        UtilGenerico.msgGenerrica(MainActivity.this, "Error no login!");
+                        UtilGenerico.msgGenerrica(MainActivity.this, erroSign);
                     }
                 }
             });
@@ -141,9 +142,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void salvarDadosSharedOreferences(){
         HashMap dadosUsuario = new HashMap();
-        dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1(), usuario.getId());
+        dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1(), mAutenticacaoFirebaseAuth.getCurrentUser().getUid());
         dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), usuario.getEmail());
         dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3(), usuario.getSenha());
+        dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4(), Base64Custom.CodificaTo64(usuario.getEmail()));
         mPreferenceSecurity.salvarValoresPreferences(dadosUsuario);
     }
 

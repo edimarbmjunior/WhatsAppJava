@@ -1,26 +1,39 @@
 package com.edidevteste.whatsappjava.view;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TableLayout;
 
 import com.edidevteste.javawhatsapp.R;
 import com.edidevteste.whatsappjava.Adapter.TabAdapter;
+import com.edidevteste.whatsappjava.Business.UsuarioBusiness;
 import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
+import com.edidevteste.whatsappjava.Util.Base64Custom;
 import com.edidevteste.whatsappjava.Util.UtilConstantes;
+import com.edidevteste.whatsappjava.Util.UtilGenerico;
 import com.edidevteste.whatsappjava.config.ConfiguracaoFirebase;
+import com.edidevteste.whatsappjava.entity.Contato;
+import com.edidevteste.whatsappjava.entity.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +43,7 @@ import java.util.TimerTask;
 public class PrincipalActivity extends AppCompatActivity {
 
     private FirebaseAuth mFirebaseAuth;
+    private DatabaseReference mFribaseDataBase;
     private PreferenceSecurity mPreferenceSecurity;
 
     private Toolbar mToolbar;
@@ -39,6 +53,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private TabItem mTabItemContatos;
 
     private Integer timerProcessamento = 0;
+    private String emailcontatoCadastro;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +61,8 @@ public class PrincipalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_principal);
 
         inicializar();
-
         setLinerters();
-        Timer();
+        //Timer();
     }
 
     //Vinculando o menu com layout construido
@@ -65,9 +79,14 @@ public class PrincipalActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.item_sair:
                 //deslogar do sistema
-                timerProcessamento = 2;
+                logout();
+                //timerProcessamento = 2;
                 return true;
             case R.id.item_configuracoes:
+                return true;
+            case R.id.item_adicionar:
+                abrirCadastroContato();
+                //timerProcessamento = 3;
                 return true;
             default:
                 Log.i("toolbarMain", "Nada selecionado!");
@@ -167,6 +186,9 @@ public class PrincipalActivity extends AppCompatActivity {
                             case 2:
                                 logout();
                                 break;
+                            case 3:
+                                abrirCadastroContato();
+                                break;
                             default:
                                 timerProcessamento = 0;
                                 break;
@@ -185,7 +207,70 @@ public class PrincipalActivity extends AppCompatActivity {
         mPreferenceSecurity.removerValoresPreferencesUsuario(dadosUsuario);
         mFirebaseAuth.signOut();
         timerProcessamento = 0;
-        startActivity(new Intent(PrincipalActivity.this, MainActivity.class));
+        startActivity(new Intent(this, MainActivity.class));
         finish();
+    }
+
+    private void abrirCadastroContato(){
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        //Configurar Objeto Dialog
+        alertDialog.setTitle("Novo Contato");
+        //Não permiti cancelar a janela apertando fora dela
+        alertDialog.setCancelable(false);
+
+        final EditText editTextEmailContato = new EditText(PrincipalActivity.this);
+        alertDialog.setView(editTextEmailContato);
+
+        alertDialog.setMessage("Por favor, coloque o e-mail do contato!");
+
+        //Butões
+        alertDialog.setPositiveButton("Cadastrar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String emailContato = editTextEmailContato.getText().toString();
+                if(emailContato.isEmpty()){
+                    UtilGenerico.msgGenerrica(PrincipalActivity.this, getString(R.string.preencha_dados));
+                }else{
+                    if(!UtilGenerico.isValidEmail(emailContato)){
+                        UtilGenerico.msgGenerrica(PrincipalActivity.this, getString(R.string.dados_invalidos));
+                    }else{
+                        emailcontatoCadastro = Base64Custom.CodificaTo64(emailContato);
+                        mFribaseDataBase = new UsuarioBusiness().getRecuperaInstanciaUsuario(emailcontatoCadastro);
+                        mFribaseDataBase.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.getValue()!=null){
+                                    Usuario usuarioPesquisado = dataSnapshot.getValue(Usuario.class);
+                                    String email64UsuarioAutenticado = mPreferenceSecurity.recuperarUsuarioEmail64();
+
+                                    Contato contato = new Contato(emailcontatoCadastro, usuarioPesquisado.getNome(), usuarioPesquisado.getEmail());
+
+                                    new UsuarioBusiness().salvarContato(email64UsuarioAutenticado, emailcontatoCadastro, contato);
+                                    UtilGenerico.msgGenerrica(PrincipalActivity.this, getString(R.string.cadastro_sucesso));
+                                }else{
+                                    UtilGenerico.msgGenerrica(PrincipalActivity.this, getString(R.string.usuario_sem_cadastro));
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        alertDialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        //Cria o objeto e exibi o mesmo
+        alertDialog.create();
+        alertDialog.show();
     }
 }

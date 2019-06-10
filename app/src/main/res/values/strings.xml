@@ -9,5 +9,9 @@
     <string name="item_sair">Sair</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment_Conversa">Hello blank fragment Conversa</string>
+    <string name="hello_blank_fragment_Contato">Hello blank fragment Contato</string>
+    <string name="preencha_dados">Preencha os dados!</string>
+    <string name="usuario_sem_cadastro">Usuário não possue cadastro!</string>
+    <string name="cadastro_sucesso">Cadastro foi um sucesso!</string>
 </resources>
