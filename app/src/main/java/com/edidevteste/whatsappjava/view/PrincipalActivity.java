@@ -204,6 +204,7 @@ public class PrincipalActivity extends AppCompatActivity {
         dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1());
         dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2());
         dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3());
+        dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4());
         mPreferenceSecurity.removerValoresPreferencesUsuario(dadosUsuario);
         mFirebaseAuth.signOut();
         timerProcessamento = 0;

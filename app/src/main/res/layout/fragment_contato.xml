@@ -4,12 +4,13 @@
     android:layout_height="match_parent"
     tools:context="com.edidevteste.whatsappjava.Fragments.ContatoFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/hello_blank_fragment_Contato"
-        android:textColor="@android:color/black"/>
 
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/listViewFragmentContatos"
+        android:divider="@color/dividreColor"
+        android:dividerHeight="1dp"
+        android:layout_gravity="center_horizontal|top"
+        />
 </FrameLayout>

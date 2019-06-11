@@ -6,4 +6,5 @@
     <color name="colorAccent">#3d958a</color>
     <color name="textColorPrimary">#ffffff</color>
     <color name="textColorMarromEscuro">#662727</color>
+    <color name="dividreColor">#cccccc</color>
 </resources>
