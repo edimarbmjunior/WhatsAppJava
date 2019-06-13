@@ -4,7 +4,8 @@ public enum UtilConstantes {
 
     USUARIO_DADOS ("USUARIO_TOKEN", "USUARIO_NOME", "USUARIO_TELEFONE", "TOKEN_VALIDADO"),
     USUARIO_DADOS_FIREBASE ("USUARIO_ID", "USUARIO_EMAIL", "USUARIO_SENHA", "USUARIO_EMAIL_64"),
-    SECURITY_PREFERENCES ("WHATSAPP");
+    SECURITY_PREFERENCES ("WHATSAPP"),
+    CONTATO_CONVERSA("NOME_CONTATO_CONVERSA", "EMAIL_CONTATO_CONVERSA");
 
     private String coluna1;
     private String coluna2;
@@ -15,11 +16,17 @@ public enum UtilConstantes {
         this.coluna1 = coluna1;
     }
 
+    private UtilConstantes(String coluna1, String coluna2) {
+        this.coluna1 = coluna1;
+        this.coluna2 = coluna2;
+    }
+
     private UtilConstantes(String coluna1, String coluna2, String coluna3) {
         this.coluna1 = coluna1;
         this.coluna2 = coluna2;
         this.coluna3 = coluna3;
     }
+
     private UtilConstantes(String coluna1, String coluna2, String coluna3, String coluna4) {
         this.coluna1 = coluna1;
         this.coluna2 = coluna2;

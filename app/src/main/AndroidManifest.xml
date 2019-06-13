@@ -13,10 +13,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.edidevteste.whatsappjava.view.PrincipalActivity"></activity>
+        <activity android:name="com.edidevteste.whatsappjava.view.ConversaPessoalActivity"
+            android:parentActivityName="com.edidevteste.whatsappjava.view.PrincipalActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edidevteste.whatsappjava.view.PrincipalActivity" />
+        </activity>
+
+        <activity android:name="com.edidevteste.whatsappjava.view.PrincipalActivity" />
         <activity android:name="com.edidevteste.whatsappjava.view.CadastroUsuarioActivity" />
         <activity android:name="com.edidevteste.whatsappjava.view.ValidadorActivity" />
-        <activity android:name="com.edidevteste.whatsappjava.view.LoginActivity"></activity>
+        <activity android:name="com.edidevteste.whatsappjava.view.LoginActivity" />
         <activity android:name="com.edidevteste.whatsappjava.view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

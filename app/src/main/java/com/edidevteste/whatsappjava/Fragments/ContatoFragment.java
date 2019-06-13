@@ -1,12 +1,14 @@
 package com.edidevteste.whatsappjava.Fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -14,8 +16,11 @@ import com.edidevteste.javawhatsapp.R;
 import com.edidevteste.whatsappjava.Adapter.ContatoAdapter;
 import com.edidevteste.whatsappjava.Repository.UsuarioRepository;
 import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
+import com.edidevteste.whatsappjava.Util.Base64Custom;
+import com.edidevteste.whatsappjava.Util.UtilConstantes;
 import com.edidevteste.whatsappjava.Util.UtilGenerico;
 import com.edidevteste.whatsappjava.entity.Contato;
+import com.edidevteste.whatsappjava.view.ConversaPessoalActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
@@ -90,6 +95,17 @@ public class ContatoFragment extends Fragment {
 
             }
         });*/
+
+        mListViewContatos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Contato contato = mlistaContatos.get(position);
+                Intent intent = new Intent(getActivity(), ConversaPessoalActivity.class);
+                intent.putExtra(UtilConstantes.CONTATO_CONVERSA.getColuna1(), contato.getNome());
+                intent.putExtra(UtilConstantes.CONTATO_CONVERSA.getColuna2(), Base64Custom.DecodificaTo64(contato.getIdentificadorUsuario()));
+                startActivity(intent);
+            }
+        });
 
         return view;
     }
