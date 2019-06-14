@@ -162,11 +162,11 @@ public class LoginActivity extends AppCompatActivity {
         sharedPreference.salvarValorPreferences(UtilConstantes.USUARIO_DADOS.getColuna3(), valorDigitado[1] );
 
         //TODO Mock para numero do celular no emulator do celular
-        String numeroMockEmulador = String.valueOf(5554);
-        valorDigitado[1] = numeroMockEmulador;
+        /*String numeroMockEmulador = String.valueOf(5554);
+        valorDigitado[1] = numeroMockEmulador;*/
 
         //Enviar SMS
-        Log.i("Telefone", "Numero:" + numeroMockEmulador);
+        /*Log.i("Telefone", "Numero:" + numeroMockEmulador);*/
         boolean statusSms = enviaSMS("+" + valorDigitado[1], mensagem);
 
         Log.i("SMS", "SMS:" + statusSms);
