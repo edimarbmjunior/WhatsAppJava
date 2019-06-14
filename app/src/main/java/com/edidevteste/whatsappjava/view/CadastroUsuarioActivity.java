@@ -156,7 +156,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity {
             String codificadoEmail = Base64Custom.CodificaTo64(usuarioSalvar.getEmail());
             HashMap dadosUsuario = new HashMap();
             dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1(), usuarioSalvar.getId());
-            dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), usuarioSalvar.getEmail());
+            dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), usuarioSalvar.getNome());
             dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3(), usuarioSalvar.getSenha());
             dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4(), codificadoEmail);
             mPreferenceSecurity.salvarValoresPreferences(dadosUsuario);

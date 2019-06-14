@@ -12,12 +12,14 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.edidevteste.javawhatsapp.R;
+import com.edidevteste.whatsappjava.Adapter.MensagemAdapter;
 import com.edidevteste.whatsappjava.Business.MensagemBusiness;
 import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
 import com.edidevteste.whatsappjava.Util.Base64Custom;
 import com.edidevteste.whatsappjava.Util.UtilConstantes;
 import com.edidevteste.whatsappjava.Util.UtilGenerico;
 import com.edidevteste.whatsappjava.config.ConfiguracaoFirebase;
+import com.edidevteste.whatsappjava.entity.ConversaEntity;
 import com.edidevteste.whatsappjava.entity.MensagemEntity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,8 +38,9 @@ public class ConversaPessoalActivity extends AppCompatActivity {
     private String mNomeUsuarioDestinatario;
     private String mIdentificadorDestinatario;
     private String mIdUsuarioRemetente;
-    private ArrayList<String> mListaMensagens;
-    private ArrayAdapter arrayAdapterMensagens;
+    private String mNomeUsuarioRemetente;
+    private ArrayList<MensagemEntity> mListaMensagens;
+    private ArrayAdapter<MensagemEntity> arrayAdapterMensagens;
 
     private DatabaseReference mFirebaseReference;
     private ValueEventListener mValueEventListenerMensagem;
@@ -75,7 +78,10 @@ public class ConversaPessoalActivity extends AppCompatActivity {
             mIdentificadorDestinatario = extra.getString(UtilConstantes.CONTATO_CONVERSA.getColuna2());
         }
 
-        mIdUsuarioRemetente = new PreferenceSecurity(getApplicationContext()).recuperarUsuarioEmail64();
+        PreferenceSecurity preferenceSecurity = new PreferenceSecurity(getApplicationContext());
+
+        mIdUsuarioRemetente = preferenceSecurity.recuperarUsuarioEmail64();
+        mNomeUsuarioRemetente = preferenceSecurity.recuperarUsuarioNome();
 
         mToolbar.setTitle(mNomeUsuarioDestinatario);
         mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_left_24dp);
@@ -88,7 +94,8 @@ public class ConversaPessoalActivity extends AppCompatActivity {
 
     private void inicializaMensagens(){
         mListaMensagens = new ArrayList<>();
-        arrayAdapterMensagens = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1,mListaMensagens);
+        /*arrayAdapterMensagens = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1,mListaMensagens);*/
+        arrayAdapterMensagens = new MensagemAdapter(getApplicationContext(), mListaMensagens);
         mListViewConversasPessoal.setAdapter(arrayAdapterMensagens);
 
         //Recupera as mensagens do FireBase
@@ -102,9 +109,7 @@ public class ConversaPessoalActivity extends AppCompatActivity {
                 for(DataSnapshot dado : dataSnapshot.getChildren()){
                     MensagemEntity mensagemEntity = dado.getValue(MensagemEntity.class);
                     if(mensagemEntity!=null){
-                        if(mensagemEntity.getMensagem()!=null){
-                            mListaMensagens.add(mensagemEntity.getMensagem());
-                        }
+                        mListaMensagens.add(mensagemEntity);
                     }
                 }
                 arrayAdapterMensagens.notifyDataSetChanged();
@@ -130,9 +135,35 @@ public class ConversaPessoalActivity extends AppCompatActivity {
 
                     Log.i("SalvarMensagem", "mIdUsuarioRemetente: " + Base64Custom.DecodificaTo64(mIdUsuarioRemetente) + "/" + mIdentificadorDestinatario);
 
-                    Boolean statusEnviar = salvarMensagem(mensagemEntity, Base64Custom.CodificaTo64(mIdentificadorDestinatario), mIdUsuarioRemetente);
-                    if(statusEnviar){
-                        mEditTextConversaMensagem.setText("");
+                    String mIdentificadorDestinatario64 = Base64Custom.CodificaTo64(mIdentificadorDestinatario);
+                    //Mensagem para o remetente
+                    Boolean statusEnviarRemetente = salvarMensagem(mensagemEntity, mIdentificadorDestinatario64, mIdUsuarioRemetente);
+                    if(!statusEnviarRemetente){
+                        UtilGenerico.msgGenerrica(getApplicationContext(), "Problema ao salvar a mensagem, tente novamente!");
+                    }else{
+                        //Mensagem para o destinatario
+                        Boolean statusEnviarDestinatario = salvarMensagem(mensagemEntity, mIdUsuarioRemetente, mIdentificadorDestinatario64);
+                        if(!statusEnviarDestinatario){
+                            UtilGenerico.msgGenerrica(getApplicationContext(), "Problema ao enviar a mensagem, tente novamente!");
+                        }else{
+
+                            //Salvar a conversa para o remetente
+                            ConversaEntity conversaEntityRemetente = new ConversaEntity(mIdentificadorDestinatario64, mNomeUsuarioDestinatario, textoMensagem);
+                            Boolean statusConversaRemetente = salvarConversa(conversaEntityRemetente, mIdUsuarioRemetente, mIdentificadorDestinatario64);
+                            if(!statusConversaRemetente){
+                                UtilGenerico.msgGenerrica(getApplicationContext(), "Problema ao enviar a conversa, tente novamente!");
+                            }else{
+
+                                //Salvar a conversa para o destinatario
+                                ConversaEntity conversaEntityDestinatario = new ConversaEntity(mIdUsuarioRemetente, mNomeUsuarioRemetente, textoMensagem);
+                                Boolean statusConversaDestinatario = salvarConversa(conversaEntityDestinatario, mIdentificadorDestinatario64, mIdUsuarioRemetente);
+                                if(!statusConversaDestinatario){
+                                    UtilGenerico.msgGenerrica(getApplicationContext(), "Problema ao salvar a conversa, tente novamente!");
+                                }else{
+                                    mEditTextConversaMensagem.setText("");
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -144,6 +175,18 @@ public class ConversaPessoalActivity extends AppCompatActivity {
         try{
 
             new MensagemBusiness().salvaMensagem(mensagemEntity, identificadorDestinatario, identificadorRemetente);
+
+            return true;
+        }catch (Exception e){
+            Log.e("ErrorSalvarMensagem", "Error: >" + e);
+            return false;
+        }
+    }
+
+    private Boolean salvarConversa(ConversaEntity conversaEntity, String identificadorDestinatario, String identificadorRemetente){
+        try{
+
+            new MensagemBusiness().salvarConversa(conversaEntity, identificadorDestinatario, identificadorRemetente);
 
             return true;
         }catch (Exception e){

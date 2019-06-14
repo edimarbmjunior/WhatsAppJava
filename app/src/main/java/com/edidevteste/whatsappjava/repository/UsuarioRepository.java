@@ -5,6 +5,7 @@ import android.widget.ArrayAdapter;
 
 import com.edidevteste.whatsappjava.config.ConfiguracaoFirebase;
 import com.edidevteste.whatsappjava.entity.Contato;
+import com.edidevteste.whatsappjava.entity.ConversaEntity;
 import com.edidevteste.whatsappjava.entity.Usuario;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -58,6 +59,10 @@ public class UsuarioRepository {
         return mDatabaseReference.child("contatos").child(email64);
     }
 
+    public DatabaseReference getDadosConversa(String email64){
+        return mDatabaseReference.child("conversas").child(email64);
+    }
+
     public static ValueEventListener getDadosContatosEvent(final ArrayList<Contato> mlistaContatos, final ArrayAdapter arrayAdapter){
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
@@ -69,6 +74,45 @@ public class UsuarioRepository {
                 }
 
                 arrayAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        return valueEventListener;
+    }
+
+    public static ValueEventListener getDadosConversaEvent(final ArrayList<ConversaEntity> mlistaConversa, final ArrayAdapter arrayAdapter){
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mlistaConversa.clear();
+                for(DataSnapshot dado : dataSnapshot.getChildren()){
+                    ConversaEntity conversaEntity = dado.getValue(ConversaEntity.class);
+                    mlistaConversa.add(conversaEntity);
+                }
+
+                arrayAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        return valueEventListener;
+    }
+
+    public static ValueEventListener getDadosusuario(final String usuarioId, final Usuario dadosUsuario){
+        mDatabaseReference = mDatabaseReference.child("usuarios").child(usuarioId);
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Usuario usuario = dataSnapshot.getValue(Usuario.class);
+                dadosUsuario.setSenha(usuario.getSenha());
+                dadosUsuario.setNome(usuario.getNome());
             }
 
             @Override

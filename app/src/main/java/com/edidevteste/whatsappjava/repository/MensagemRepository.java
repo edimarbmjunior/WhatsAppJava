@@ -1,18 +1,10 @@
 package com.edidevteste.whatsappjava.Repository;
 
-import android.support.annotation.NonNull;
-import android.widget.ArrayAdapter;
-
-import com.edidevteste.whatsappjava.Util.Base64Custom;
 import com.edidevteste.whatsappjava.config.ConfiguracaoFirebase;
+import com.edidevteste.whatsappjava.entity.ConversaEntity;
 import com.edidevteste.whatsappjava.entity.MensagemEntity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
 
 public class MensagemRepository {
 
@@ -44,5 +36,12 @@ public class MensagemRepository {
                 .child( identificadorDestinatario )
                 .push()
                 .setValue(mensagemEntity);
+    }
+
+    public void salvarConversa(ConversaEntity conversaEntity, String identificadorDestinatario, String identificadorRemetente){
+        mDatabaseReference.child("conversas")
+                .child( identificadorDestinatario )
+                .child( identificadorRemetente )
+                .setValue(conversaEntity);
     }
 }

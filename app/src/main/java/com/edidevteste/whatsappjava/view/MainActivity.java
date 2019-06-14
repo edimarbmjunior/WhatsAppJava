@@ -8,9 +8,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Switch;
 
 import com.edidevteste.javawhatsapp.R;
+import com.edidevteste.whatsappjava.Repository.UsuarioRepository;
 import com.edidevteste.whatsappjava.Security.PreferenceSecurity;
 import com.edidevteste.whatsappjava.Util.Base64Custom;
 import com.edidevteste.whatsappjava.Util.UtilConstantes;
@@ -22,6 +22,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,8 +41,10 @@ public class MainActivity extends AppCompatActivity {
     private Usuario usuario;
 
     private FirebaseAuth mAutenticacaoFirebaseAuth;
+    private DatabaseReference mFirebaseDatabase;
     private PreferenceSecurity mPreferenceSecurity;
     private Integer timerProcessamento = 0;
+    private ValueEventListener mValueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
         Timer();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //mFirebaseDatabase.removeEventListener(mValueEventListener);
+    }
+
     public void abrirCadastroUsuario(View view){
         startActivity(new Intent(this, CadastroUsuarioActivity.class));
     }
@@ -64,12 +76,17 @@ public class MainActivity extends AppCompatActivity {
         editLoginSenha = findViewById(R.id.editLoginSenha);
         buttonLoginCadastro = findViewById(R.id.buttonLoginCadastro);
         mAutenticacaoFirebaseAuth = ConfiguracaoFirebase.getFirebaseAuth();
+        mFirebaseDatabase = ConfiguracaoFirebase.getFirebaseDataBase();
         mPreferenceSecurity = new PreferenceSecurity(this);
+        usuario = new Usuario();
     }
 
     private void validaUsuarioLogado(){
         if(mAutenticacaoFirebaseAuth.getCurrentUser()!=null && mPreferenceSecurity.recuperarValorUnicoPrefences(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4())!=null){
-            chamarTelaPrincipal();
+            Log.i("LoginL", "Usuario Existe na autenticação - " + mPreferenceSecurity.recuperarUsuarioEmail64());
+            Log.i("LoginL", "Usuario Existe na autenticação - " + Base64Custom.DecodificaTo64(mPreferenceSecurity.recuperarUsuarioEmail64()));
+            usuario.setEmail(Base64Custom.DecodificaTo64(mPreferenceSecurity.recuperarUsuarioEmail64()));
+            timerProcessamento = 4;
         }else{
             List<String> dadosUsuario = new ArrayList<>();
             dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4());
@@ -77,7 +94,10 @@ public class MainActivity extends AppCompatActivity {
             dadosUsuario.add(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3());
             HashMap<String, String> dadosRecuperados = mPreferenceSecurity.recuperarValoresUnicoPrefences(dadosUsuario);
             if(!dadosRecuperados.isEmpty()){
-                usuario = new Usuario(dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4()), null, dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2()), dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3()));
+                //recuperaUsuario();
+                //usuario = new Usuario(dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4()), dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2()), Base64Custom.DecodificaTo64(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4()), dadosRecuperados.get(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3()));
+                Log.i("LoginL", "Usuario Existe na SharedPreferences.");
+                usuario.setEmail(Base64Custom.DecodificaTo64(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4()));
                 timerProcessamento = 3;
             }
         }
@@ -96,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         Timer timer = new Timer();
         MainActivity.Task task = new MainActivity.Task();
 
-        timer.schedule(task, 500, 500);
+        timer.schedule(task, 1000, 1000);
     }
 
     private void logar(){
@@ -110,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onComplete(@NonNull com.google.android.gms.tasks.Task<AuthResult> task) {
                     if(task.isSuccessful()){
                         UtilGenerico.msgGenerrica(MainActivity.this, "Sucesso no login!");
-                        timerProcessamento = 2;
+                        Log.i("LoginL", "Usuario Existe na SharedPreferences.");
+                        timerProcessamento = 4;
                     }else{
                         String erroSign = "";
                         try{
@@ -133,20 +154,82 @@ public class MainActivity extends AppCompatActivity {
 
     private void recupedadosFirebase(){
         mAutenticacaoFirebaseAuth.signInWithEmailAndPassword(usuario.getEmail(), usuario.getSenha());
+        timerProcessamento = 1;
     }
 
     private void chamarTelaPrincipal(){
         startActivity(new Intent(this, PrincipalActivity.class));
         finish();
+        timerProcessamento = 0;
     }
 
     private void salvarDadosSharedOreferences(){
         HashMap dadosUsuario = new HashMap();
         dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna1(), mAutenticacaoFirebaseAuth.getCurrentUser().getUid());
-        dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), usuario.getEmail());
-        dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna3(), usuario.getSenha());
+        dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), usuario.getNome());
         dadosUsuario.put(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4(), Base64Custom.CodificaTo64(usuario.getEmail()));
+        Log.i("LoginL", "IdUsuario: " + mAutenticacaoFirebaseAuth.getCurrentUser().getUid());
+        Log.i("LoginL", "email:     " + mAutenticacaoFirebaseAuth.getCurrentUser().getEmail());
+        Log.i("LoginL", "Usuario:   " + usuario.toString());
+        Log.i("LoginL", "Email64:   " + Base64Custom.CodificaTo64(usuario.getEmail()));
         mPreferenceSecurity.salvarValoresPreferences(dadosUsuario);
+        timerProcessamento = 1;
+    }
+
+    private void inicializaValueEvent(){
+        mValueEventListener = UsuarioRepository.getDadosusuario(Base64Custom.CodificaTo64(usuario.getEmail()), usuario);
+    }
+
+    private void recuperaUsuario(){
+        //inicializaValueEvent();
+        mFirebaseDatabase = ConfiguracaoFirebase.getFirebaseDataBase().child("usuarios").child(Base64Custom.CodificaTo64(usuario.getEmail()));
+
+        mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Usuario usuarioRecuperado = dataSnapshot.getValue(Usuario.class);
+
+                usuario.setNome(usuarioRecuperado.getNome());
+                Log.i("LoginL", "UsuarioRecuperado: " + usuarioRecuperado);
+                Log.i("LoginL", "Usuario: " + usuario);
+                timerProcessamento = 2;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void verificarProcessamento(){
+        if(timerProcessamento > 0){
+            switch(timerProcessamento){
+                case 1:
+                    Log.i("LoginL", "Chama a tela principal.");
+                    chamarTelaPrincipal();
+                    Log.i("LoginL", "Próximo passo " + 0);
+                    break;
+                case 2:
+                    Log.i("LoginL", "Salva dados no SharedPreferences.");
+                    salvarDadosSharedOreferences();
+                    Log.i("LoginL", "Próximo passo " + 1);
+                    break;
+                case 3:
+                    Log.i("LoginL", "Vai no Firebase recuperar dados já existentes.");
+                    recupedadosFirebase();
+                    Log.i("LoginL", "Próximo passo " + 1);
+                    break;
+                case 4:
+                    Log.i("LoginL", "Recupera usuário.");
+                    recuperaUsuario();
+                    Log.i("LoginL", "Próximo passo " + 2);
+                default:
+                    Log.i("LoginL", "Próximo passo " + 0);
+                    timerProcessamento = 0;
+                    break;
+            }
+        }
     }
 
     class Task extends TimerTask {
@@ -156,25 +239,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(timerProcessamento > 0){
-                        switch(timerProcessamento){
-                            case 1:
-                                chamarTelaPrincipal();
-                                timerProcessamento = 0;
-                                break;
-                            case 2:
-                                salvarDadosSharedOreferences();
-                                timerProcessamento = 1;
-                                break;
-                            case 3:
-                                recupedadosFirebase();
-                                timerProcessamento = 1;
-                                break;
-                            default:
-                                timerProcessamento = 0;
-                                break;
-                        }
-                    }
+                    verificarProcessamento();
                 }
             });
         }

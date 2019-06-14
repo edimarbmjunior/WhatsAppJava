@@ -55,4 +55,14 @@ public class Usuario {
         senha = UtilGenerico.MD5_Hash(senha);
         this.senha = senha;
     }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id='" + id + '\'' +
+                ", nome='" + nome + '\'' +
+                ", email='" + email + '\'' +
+                ", senha='" + senha + '\'' +
+                '}';
+    }
 }

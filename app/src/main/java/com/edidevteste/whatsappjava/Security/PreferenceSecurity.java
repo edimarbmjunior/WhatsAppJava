@@ -55,7 +55,7 @@ public class PreferenceSecurity {
         return mSharedPreferences.getString(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna4(), "");
     }
 
-    public String recuperarUsuarioEmail(){
+    public String recuperarUsuarioNome(){
         return mSharedPreferences.getString(UtilConstantes.USUARIO_DADOS_FIREBASE.getColuna2(), "");
     }
 
